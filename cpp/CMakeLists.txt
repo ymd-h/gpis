@@ -1,6 +1,5 @@
 set(LIBRARY_NAME gpis)
 
-set(BOOST_ROOT "/home/suddhu/packages/boost_1_55_0")
 find_package(Boost 1.55 REQUIRED)
 
 file(GLOB implementation_files "src/*.cpp")
@@ -9,11 +8,19 @@ message("headers:" "${header_files}")
 
 add_library(${LIBRARY_NAME} SHARED ${implementation_files})
 
-SET (EIGEN3_INCLUDE_DIR "/usr/include/eigen3/Eigen/src")
+find_package(Python3 3.10 COMPONENTS Development NumPy)
+message("Python PATH:" "${Python3_INCLUDE_DIRS}")
+message("NumPy PATH:" "${Python3_NumPy_INCLUDE_DIRS}")
+
+find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 message("EIGEN PATH:" "${EIGEN3_INCLUDE_DIR}")
 
-include_directories(${Boost_INCLUDE_DIRS})
-include_directories(${EIGEN3_INCLUDE_DIR})
+include_directories(
+  ${Boost_INCLUDE_DIRS}
+  ${Python3_INCLUDE_DIRS}
+  ${Python3_NumPy_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIR}
+)
 
 set(INCLUDE_DIRS include)
 include_directories(${INCLUDE_DIRS})

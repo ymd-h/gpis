@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.0...3.30.5)
 
 project(test_gp)
 
@@ -19,22 +19,23 @@ message("cpps:" "${implementation_files}")
 #   COMPILE_FLAGS "-std=c++14 -march=native -pthread -Wall -W -Wextra -Wconversion -Wno-unused-parameter -Wwrite-strings"
 # )
 
-find_package(PythonLibs 2.7)
+find_package(Python3 3.10 COMPONENTS Development NumPy)
+message("Python PATH:" "${Python3_INCLUDE_DIRS}")
+message("NumPy PATH:" "${Python3_NumPy_INCLUDE_DIRS}")
+message("Python Link Options" "${Python3_LINK_OPTIONS}")
+message("Python Library" "${Python3_LIBRARIES}")
 
-SET (EIGEN3_INCLUDE_DIR "/usr/include/eigen3/Eigen/src")
+find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 message("EIGEN PATH:" "${EIGEN3_INCLUDE_DIR}")
 
 include_directories(
         ../cpp/include 
         ${EIGEN3_INCLUDE_DIR}
-        ${PYTHON_INCLUDE_DIRS}
+        ${Python3_INCLUDE_DIRS}
+        ${Python3_NumPy_INCLUDE_DIRS}
 )
 
-add_executable(test_gp test_gp.cpp
-                        ${implementation_files}
-                        ${header_files})
-target_link_libraries(test_gp ${PYTHON_LIBRARIES})
-add_executable(test_kd test_kd.cpp
-                        ${implementation_files}
-                        ${header_files})
+add_executable(test_gp test_gp.cpp ${implementation_files} ${header_files})
+target_link_libraries(test_gp ${Python3_LIBRARIES})
+add_executable(test_kd test_kd.cpp ${implementation_files} ${header_files})
 
