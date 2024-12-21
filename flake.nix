@@ -7,38 +7,30 @@
   outputs = { self, nixpkgs, flake-utils }: flake-utils.lib.eachDefaultSystem (system:
     let
       pkgs = nixpkgs.legacyPackages.${system};
-      deps = with pkgs; [
-          cmake
-          eigen
-          (python3.withPackages (ps: with ps; [
-            numpy
-            matplotlib
-          ]))
-        ];
-    in {
-      packages.default = pkgs.stdenv.mkDerivation {
-        name = "gpis";
-        src = ./.;
-        dontUseCmakeConfigure=true;
+      lib = nixpkgs.lib;
+    in rec {
+      packages = rec {
+        python-311 = pkgs.callPackage ./gpis.nix {
+          inherit pkgs;
+          inherit lib;
+          ps = pkgs.python311Packages;
+        };
 
-        nativeBuildInputs = deps;
-        buildInputs = deps;
+        python-312 = pkgs.callPackage ./gpis.nix {
+          inherit pkgs;
+          inherit lib;
+          ps = pkgs.python312Packages;
+        };
 
-        buildPhase = ''
-          mkdir -p mex/build
-          cd mex/build
-          cmake ../
-          make -j
-        '';
-
-        installPhase = ''
-          mkdir -p $out
-          cp test_gp test_kd $out/
-        '';
+        default = python-312;
       };
 
       devShells.default = pkgs.mkShell {
-        packages = deps;
+        packages = [
+          (pkgs.python312.withPackages(ps: [
+            packages.python-312
+          ]))
+        ];
       };
     }
   );
