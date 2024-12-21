@@ -1,6 +1,6 @@
 /*
  * test_gp.cpp: cpp test code for GPShape library
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License v3 as published by
  * the Free Software Foundation.
@@ -38,25 +38,25 @@ void plotResult(cnt contour, cnt ground_truth, Eigen::Vector2d contact_point, Ei
     vector<double> c_x, c_y, n_x, n_y; // for plotting
 
     for (int i = 0; i < contour.size(); i++) {
-        shape_x.push_back(contour[i][0]); 
-        shape_y.push_back(contour[i][1]); 
+        shape_x.push_back(contour[i][0]);
+        shape_y.push_back(contour[i][1]);
     }
-    shape_x.push_back(shape_x[0]); 
-    shape_y.push_back(shape_y[0]); 
+    shape_x.push_back(shape_x[0]);
+    shape_y.push_back(shape_y[0]);
 
     for (int i = 0; i < ground_truth.size(); i++) {
-        ground_x.push_back(ground_truth[i][0]); 
-        ground_y.push_back(ground_truth[i][1]); 
+        ground_x.push_back(ground_truth[i][0]);
+        ground_y.push_back(ground_truth[i][1]);
     }
 
     ground_x.push_back(ground_x[0]);
     ground_y.push_back(ground_y[0]);
 
     // for plotting
-    c_x.push_back(contact_point(0)); c_y.push_back(contact_point(1)); 
-    n_x.push_back(contact_normal(0)); n_y.push_back(contact_normal(1)); 
+    c_x.push_back(contact_point(0)); c_y.push_back(contact_point(1));
+    n_x.push_back(contact_normal(0)); n_y.push_back(contact_normal(1));
 
-    // TODO: plot wrt object pose 
+    // TODO: plot wrt object pose
     plt::plot(shape_x, shape_y, "g-"); // optimized shape
 
     plt::plot(ground_x, ground_y, "k--"); // ground truth shape
@@ -64,17 +64,17 @@ void plotResult(cnt contour, cnt ground_truth, Eigen::Vector2d contact_point, Ei
 
     plt::quiver(c_x, c_y, n_x, n_y);
 
-    string title_string = shape_id + string(" t = ") + to_string(ts); 
+    string title_string = shape_id + string(" t = ") + to_string(ts);
     plt::title({title_string});
-    plt::axis("equal"); 
+    plt::axis("equal");
 
-    plt::xlim(-0.09, 0.09); 
+    plt::xlim(-0.09, 0.09);
     plt::ylim(-0.09, 0.09);
 
     if(pause){
         plt::show();
     }
-    else {     
+    else {
         plt::show(false);
         plt::pause(0.0001);
         plt::clf();
@@ -83,8 +83,18 @@ void plotResult(cnt contour, cnt ground_truth, Eigen::Vector2d contact_point, Ei
 
 int main(int argc, char** argv){
 
+    if(argc != 2){
+      std::cout << "Usage  : test_gp <input file>\n"
+                << "Example: test_gp ./data/contacts/contacts-rect1-20200810-1811.txt"
+                << std::endl;
+      return 1;
+    }
+
+    std::cout << "Input File: " << argv[1] << std::endl;
+    ifstream infile(argv[1]);
+
     // ifstream infile("/home/suddhu/software/GPIS/data/contacts/contacts-rect1-20200115-1026.txt");
-    ifstream infile("/home/suddhu/software/GPIS/data/contacts/contacts-rect1-20200810-1811.txt");
+    // ifstream infile("/home/suddhu/software/GPIS/data/contacts/contacts-rect1-20200810-1811.txt");
     // ifstream infile("/home/suddhu/software/GPIS/data/contacts/contacts-rect1-20200810-1616.txt");
     // ifstream infile("/home/suddhu/software/GPIS/data/contacts/contacts-rect1-20200831-1244.txt");
     // ifstream infile("/home/suddhu/software/GPIS/data/contacts/contacts-rect1-20200831-1248.txt");
@@ -93,8 +103,8 @@ int main(int argc, char** argv){
     string shape_id = "rect1";
     // string shape_id = "ellip2";
 
-    cnt ground_truth; 
-    ground_truth_shape(ground_truth, shape_id); 
+    cnt ground_truth;
+    ground_truth_shape(ground_truth, shape_id);
 
     // initialize GP
     std::vector<double> pvar = {1e-5, 1e-5, 1e-5}; // meas variance: scalar
@@ -105,13 +115,13 @@ int main(int argc, char** argv){
 
     std::shared_ptr<GPShape> gpshape; // shape object
     gpshape = std::make_shared<GPShape>(pvar, priorNoise, kernel, testLim, testRes, gp_count, true);
-    // GPShape(std::vector<double> var_, std::vector<double> prior_var_, std::string kernel_, const double& test_lim_, const double& res_, const int& gp_count_) : 
+    // GPShape(std::vector<double> var_, std::vector<double> prior_var_, std::string kernel_, const double& test_lim_, const double& res_, const int& gp_count_) :
 
     // add circular prior to all GPs
     gpshape->addPrior(priorRad, 4, Eigen::Vector3d::Zero());
 
     string line_data;
-    cnt contour; 
+    cnt contour;
     Emx fMean, fVar; Evx contourVar;
 
     int t = 0;

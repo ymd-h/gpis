@@ -1,0 +1,12 @@
+[build-system]
+requires = ["scikit-build-core"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "gpis"
+version = "0.0.1"
+description = "Gaussian Process Implicit Surfaces for shape estimation"
+license = {text = "GNU General Public License v3 (GPLv3)"}
+
+
+[tools.scikit-build]
