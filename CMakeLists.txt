@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.30...3.30.5)
 project(${SKBUILD_PROJECT_NAME} LANGUAGES CXX)
 
-file(GLOB sources "src/*.cpp")
+file(GLOB cpp "src/*.cpp")
+message("CPP: " "${cpp}")
 
 find_package(Boost 1.70 REQUIRED)
 message("Boost PATH:" "${Boost_INCLUDE_DIRS}")
@@ -14,7 +15,9 @@ include_directories(
   ${EIGEN3_INCLUDE_DIR}
 )
 
-find_package(Python COMPONENTS Interpreter Development.Module REQUIRED)
-python_add_library(_gpis MODULE WITH_SOABI ${sources})
+set(PYBIND11_NEWPYTHON ON)
+find_package(pybind11 CONFIG REQUIRED)
+
+pybind11_add_module(_gpis ${cpp})
 
 install(TARGETS _gpis LIBRARY DESTINATION gpis)

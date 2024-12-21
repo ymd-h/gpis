@@ -23,6 +23,7 @@
   build-system = [
     ps.scikit-build-core
     ps.ninja
+    ps.pybind11
   ];
 
   src = lib.fileset.toSource {

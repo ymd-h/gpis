@@ -1,5 +1,5 @@
 [build-system]
-requires = ["scikit-build-core", "ninja"]
+requires = ["scikit-build-core", "ninja", "pybind11"]
 build-backend = "scikit_build_core.build"
 
 [project]
@@ -8,5 +8,8 @@ version = "0.0.1"
 description = "Gaussian Process Implicit Surfaces for shape estimation"
 license = {text = "GNU General Public License v3 (GPLv3)"}
 
-
 [tools.scikit-build]
+sdist.exclude = [
+  "flake.*"
+]
+wheel.exclude = ["**.cpp", "**.hpp", "**.h"]
