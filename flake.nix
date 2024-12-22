@@ -29,6 +29,8 @@
         packages = [
           (pkgs.python312.withPackages(ps: [
             packages.python-312
+            ps.matplotlib
+            ps.numpy
           ]))
         ];
       };
