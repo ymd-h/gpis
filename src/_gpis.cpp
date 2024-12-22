@@ -1,6 +1,5 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/eigen.h>
-#include <pybind11/stl_bind.h>
 #include <pybind11/stl.h>
 
 #include "GPShape.hpp"
@@ -9,7 +8,6 @@ namespace py = pybind11;
 using namespace pybind11::literals;
 
 
-PYBIND11_MAKE_OPAQUE(std::vector<bool>);
 PYBIND11_MAKE_OPAQUE(cnt);
 PYBIND11_MAKE_OPAQUE(cnts);
 PYBIND11_MAKE_OPAQUE(Emx);
@@ -18,10 +16,26 @@ PYBIND11_MAKE_OPAQUE(Evx);
 
 PYBIND11_MODULE(_gpis, m) {
   m.doc() = "GPIS internal C++ extension module";
+  py::class_<cnt>(m, "Contour")
+    .def(py::init<>())
+    .def(py::init([](const py::iterable &it){
+      auto v = std::unique_ptr<cnt>(new cnt());
+      v->reserve(py::len_hint(it));
+      for(auto h : it){
+        v->push_back(h.cast<std::vector<double>>());
+      }
+      return v.release();
+    }))
+    .def("__getitem__", [](const cnt& self, std::size_t i){ return self[i]; })
+    .def("__len__", [](const cnt& self){ return self.size(); })
+    .def("append", [](cnt& self, std::vector<double> v){ self.push_back(v); });
 
-  py::bind_vector<std::vector<bool>>(m, "VectorBool");
-  py::bind_vector<cnt>(m, "Contour");
-  py::bind_vector<cnts>(m, "ContourList");
+  py::class_<cnts>(m, "ContourList")
+    .def(py::init<>())
+    .def(py::init<std::vector<cnt>>())
+    .def("__getitem__", [](const cnts& self, std::size_t i){ return self[i]; })
+    .def("__len__", [](const cnts& self){ return self.size(); })
+    .def("append", [](cnts& self, cnt v){ self.push_back(v); });
 
   py::class_<Emx>(m, "EigenMatrix")
     .def(py::init<>())
@@ -75,7 +89,6 @@ PYBIND11_MODULE(_gpis, m) {
     .def("printSize", &GPShape::printSize)
     .def("printTiming", &GPShape::printTiming)
     .def("preFilter", &GPShape::preFilter)
-    .def("updateThread", &GPShape::updateThread)
     .def("update", &GPShape::update)
     .def("updateLocal", &GPShape::updateLocal)
     .def("addPrior", &GPShape::addPrior)

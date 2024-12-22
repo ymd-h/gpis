@@ -1,4 +1,4 @@
-from ._gpis import GPShape, Contour, ContourList, EigenVector, EigenMatrix, VectorBool
+from ._gpis import GPShape, Contour, ContourList, EigenVector, EigenMatrix
 
 __all__ = [
     "GPShape",
@@ -6,5 +6,4 @@ __all__ = [
     "ContourList",
     "EigenVector",
     "EigenMatrix",
-    "VectorBool",
 ]
