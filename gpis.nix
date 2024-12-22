@@ -30,6 +30,7 @@
     root = ./.;
     fileset = lib.fileset.unions [
       ./pyproject.toml
+      ./README.md
       ./CMakeLists.txt
       ./src
     ];
