@@ -44,7 +44,8 @@ PYBIND11_MODULE(_gpis, m) {
         start += step;
       }
       return v;
-    });
+    })
+    .def("__setitem__", [](Evx& self, std::size_t i, double v){ self(i) = v; });
 
   py::class_<GPShape, std::shared_ptr<GPShape>>(m, "GPShape")
     .def(py::init<std::vector<double>, std::vector<double>, std::string, const double&, const double&, const int&, bool>(),

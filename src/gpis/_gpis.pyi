@@ -98,8 +98,13 @@ class EigenVector:
     @classmethod
     def copyFrom(cls, v: EigenVector | Iterable[float]) -> EigenVector: ...
 
+    @overload
     def __getitem__(self, i: int) -> float: ...
+
+    @overload
     def __getitem__(self, s: slice) -> EigenVector: ...
+
+    def __setitem__(self, i: int, v: float) -> None: ...
 
 
 class EigenMatrix:
