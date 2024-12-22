@@ -44,6 +44,8 @@ Run a example.
 
 ```shell
 python example/example_gp.py data/contacts/contacts-rect1-20200810-1811.txt
+
+python example/example_gp.py data/contacts/contacts-ellip2-20200115-2208.txt --shape ellip2
 ```
 
 
