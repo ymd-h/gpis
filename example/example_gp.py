@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import argparse
 import sys
-from typing import Literal
+from typing import Literal, TypeAlias
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,13 +22,14 @@ from matplotlib.animation import FuncAnimation
 
 import gpis
 
+ShapeID: TypeAlias = Literal[
+    "rect1", "rect2", "rect3",
+    "tri1", "tri2", "tri3",
+    "ellip1", "ellip2", "ellip3",
+    "hex",
+]
 
-def ground_truth_shape(
-        shape: Literal["rect1", "rect2", "rect3",
-                       "tri1", "tri2", "tri3",
-                       "ellip1", "ellip2", "ellip3",
-                       "hex"]
-) -> gpis.Contour:
+def ground_truth_shape(shape: ShapeID) -> gpis.Contour:
     """
     Get Ground Truth Shape
 
@@ -109,7 +110,7 @@ def ground_truth_shape(
 
 
 def example_gp(data: str,
-               shape: Literal["rect1", "ellip2"],
+               shape: ShapeID,
                kernel: Literal["thinplate", "gaussian", "matern"],
                interval: int) -> int:
     """
@@ -208,7 +209,7 @@ def example_gp(data: str,
 if __name__ == "__main__":
     p = argparse.ArgumentParser("Example for GP")
     p.add_argument("data", help="Input Data. e.g. './data/contacts/contacts-rect1-20200810-1811.txt'")
-    p.add_argument("--shape", choices=["rect1", "ellip2"], default="rect1")
+    p.add_argument("--shape", choices=["rect1", "rect2", "rect3", "tri1", "tri2", "tri3", "ellip1", "ellip2", "ellip3", "hex"], default="rect1")
     p.add_argument("--kernel", choices=["thinplate", "gaussian", "matern"], default="thinplate")
     p.add_argument("--interval", type=int, help="Plot frame interval in ms", default=10)
     args = p.parse_args()
