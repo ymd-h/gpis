@@ -9,6 +9,7 @@ namespace py = pybind11;
 using namespace pybind11::literals;
 
 
+PYBIND11_MAKE_OPAQUE(std::vector<bool>);
 PYBIND11_MAKE_OPAQUE(cnt);
 PYBIND11_MAKE_OPAQUE(cnts);
 PYBIND11_MAKE_OPAQUE(Emx);
@@ -18,14 +19,17 @@ PYBIND11_MAKE_OPAQUE(Evx);
 PYBIND11_MODULE(_gpis, m) {
   m.doc() = "GPIS internal C++ extension module";
 
+  py::bind_vector<std::vector<bool>>(m, "VectorBool");
   py::bind_vector<cnt>(m, "Contour");
   py::bind_vector<cnts>(m, "ContourList");
 
   py::class_<Emx>(m, "EigenMatrix")
-    .def(py::init<>());
+    .def(py::init<>())
+    .def(py::init<Eigen::Index, Eigen::Index>());
 
   py::class_<Evx>(m, "EigenVector")
     .def(py::init<>())
+    .def(py::init<Eigen::Index>())
     .def_static("Zero3d", []() -> Evx { return Eigen::Vector3d::Zero(); })
     .def_static("copyFrom", [](const Eigen::Ref<Evx>& v) -> Evx { return Evx(v); })
     .def("__getitem__", [](const Evx& self, std::size_t i){ return self(i); })
@@ -46,21 +50,7 @@ PYBIND11_MODULE(_gpis, m) {
     .def(py::init<std::vector<double>, std::vector<double>, std::string, const double&, const double&, const int&, bool>(),
          "var"_a, "prior_var"_a,
          "kernel"_a, "test_lim"_a, "res"_a, "gp_count"_a,
-         "localExperts"_a = true,
-         R"(
-GPShape
-
-Parameters
-----------
-var : Vector1d
-prior_var : Vector1d
-kernel : "thinplate", "gaussian", "matern"
-test_lim : double
-res : double
-gp_count : int
-localExpert : bool
-    Default is True
-)")
+         "localExperts"_a = true)
     .def("buildAndQueryTree", &GPShape::buildAndQueryTree)
     .def("initGPs", &GPShape::initGPs)
     .def("updateKxx", &GPShape::updateKxx)
@@ -90,7 +80,12 @@ localExpert : bool
     .def("addPrior", &GPShape::addPrior)
     .def("test", &GPShape::test)
     .def("testThread", &GPShape::testThread)
-    .def("testMeasurement", &GPShape::testMeasurement)
+    .def("testMeasurement",
+         [](const GPShape& self, int idx, const Evx& p, const Evx& n){
+           double v, n_dot, d;
+           self.testMeasurement(idx, p, n, v, n_dot, d);
+           return std::make_tuple(v, n_dot, d);
+         })
     .def("getContourVariance", &GPShape::getContourVariance)
     .def("transformContour", &GPShape::transformContour)
     .def("transformPointFrom", &GPShape::transformPointFrom)

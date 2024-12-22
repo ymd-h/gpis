@@ -31,6 +31,8 @@
             packages.python-312
             ps.matplotlib
             ps.numpy
+            ps.mypy
+            ps.pandas-stubs
           ]))
         ];
       };
