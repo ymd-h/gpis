@@ -61,3 +61,17 @@ and docstring are missing.
 
 If you pass wrong type arguments,
 `TypeError` is shown on its console, however, it is not raised.
+
+
+## Aknoledgements derived from Upstream
+- The contouring functions are from [conrec](http://paulbourke.net/papers/conrec/).
+- C++ library to generate mesh grid: [meshgen](https://github.com/xiaohongchen1991/meshgen)
+- Shape models taken from the [MIT push dataset](https://mcube.mit.edu/push-dataset/index.html)
+- `kdtree_eigen.h` is developed by Fabian Meyer based on "Analysis of Approximate Nearest Neighbor Searching with Clustered Point Sets" by Songrit Maneewongvatana and  David M. Mount
+
+
+## ToDo
+- Clean up `data` directory which still contains unknown MATLAB codes etc.
+- Organize (re-design) public API.
+- Improve implementation if possible.
+  - i.e. Does `std::vector<std::vector>>` for contour is sufficient? Should be one of the matrices classes of Eigen or NumPy?
