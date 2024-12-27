@@ -74,4 +74,4 @@ If you pass wrong type arguments,
 - Clean up `data` directory which still contains unknown MATLAB codes etc.
 - Organize (re-design) public API.
 - Improve implementation if possible.
-  - i.e. Does `std::vector<std::vector>>` for contour is sufficient? Should be one of the matrices classes of Eigen or NumPy?
+  - i.e. Does `std::vector<std::vector<double>>>` for contour is sufficient? Should be one of the matrices classes of Eigen or NumPy?
