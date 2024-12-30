@@ -65,7 +65,27 @@ PYBIND11_MODULE(_gpis, m) {
     .def(py::init<std::vector<double>, std::vector<double>, std::string, const double&, const double&, const int&, bool>(),
          "var"_a, "prior_var"_a,
          "kernel"_a, "test_lim"_a, "res"_a, "gp_count"_a,
-         "localExperts"_a = true)
+         "localExperts"_a = true, R"**(
+     Initialize GPShape
+
+     Parameters
+     ----------
+     var : iterable of float
+         Variance
+     prior_var : iterable of float
+         Prior Variance
+     kernel : "thinplate", "gaussian", "matern"
+         Kernel Method
+     test_lim : float
+         Grid Limit for ``test()``.
+         Square region ``(x, y)`` in ``[-test_lim, test_lim]`` will be used.
+     res : float
+         Grid Resolution (step size) for ``test()``.
+     gp_count : int
+         Number of Local Gaussian Processes
+     localExperts : bool
+         Whether to use local experts. Default is ``True``
+)**")
     .def("buildAndQueryTree", &GPShape::buildAndQueryTree)
     .def("initGPs", &GPShape::initGPs)
     .def("updateKxx", &GPShape::updateKxx)
@@ -89,10 +109,49 @@ PYBIND11_MODULE(_gpis, m) {
     .def("printSize", &GPShape::printSize)
     .def("printTiming", &GPShape::printTiming)
     .def("preFilter", &GPShape::preFilter)
-    .def("update", &GPShape::update)
+    .def("update", &GPShape::update, R"**(
+     Update local GPs
+
+     Parameters
+     ----------
+     contact_pt : EigenVector
+         Position Vector ``{x, y}`` of newly measured Contact.
+     contact_normal : EigenVector
+         Normal Vector ``{nx, ny}`` of newly measured Contact.
+     p : EigenVector
+         Pose Vector ``{x, y, theta}`` of planar object.
+)**")
     .def("updateLocal", &GPShape::updateLocal)
-    .def("addPrior", &GPShape::addPrior)
-    .def("test", &GPShape::test)
+    .def("addPrior", &GPShape::addPrior, R"**(
+     Add Initial Prior Distribution
+
+     Parameters
+     ----------
+     r : float
+         Radius
+     n : int
+         Number of Points
+     p : EigenVector
+         Pose Vector ``{x, y, theta}``
+)**")
+    .def("test", &GPShape::test, R"**(
+     Estimate contour
+
+     First sample from posterior distribution
+     over grid test points to get signed distance field (SDF).
+     Then estimate contour from them.
+
+     Parameters
+     ----------
+     contour : Contour
+         Estimated contour will be stored here.
+     m_test : EigenMatrix
+         Mean value at test points will be stored.
+     c_test : EigenMatrix
+         Variance at test points will be stored.
+     controurVar : EigenVector
+         Estimated contour variance will be stored here.
+)**")
     .def("testThread", &GPShape::testThread)
     .def("testMeasurement",
          [](const GPShape& self, int idx, const Evx& p, const Evx& n){
@@ -104,5 +163,28 @@ PYBIND11_MODULE(_gpis, m) {
     .def("transformContour", &GPShape::transformContour)
     .def("transformPointFrom", &GPShape::transformPointFrom)
     .def("transformPointTo", &GPShape::transformPointTo)
-    .def("Norm", &GPShape::Norm);
+    .def("Norm", &GPShape::Norm)
+    .doc() = R"**(
+    GPShape estimating shape of 2D planar objects from tactile sensor.
+
+    Notes
+    -----
+    Shape is estimated with multiple local Gaussian Prpcesses (GPs)
+    instead of single full large GP to reduce computation cost.
+    Each local GP learns function from points ``{x, y}``
+    to signed distance field (SDF) ``{d, nx, ny}``.
+    Estimated shape is initialized with circular pior distribution
+    and updated with newly measured contacts ``{x, y, nx, ny, d=0}``.
+    By sampling over mesh grid points from posterior distribution,
+    contour (``d=0``) is estimated.
+
+    This is a part of the paper [1]_ and pose estimation is (probably)
+    not included.
+
+    References
+    ----------
+    .. [1] S. Sudharshan et al., "Tactile SLAM: Real-time inference of
+       shape and pose from planar pushing", arXiv preprint
+       arXiv:2011.07044 (2020).
+)**";
 }
